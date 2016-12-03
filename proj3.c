@@ -67,9 +67,9 @@ struct cluster_t {
 };
 
 const char usage_string[] =
-	"		proj3 SOUBOR [N]\n"
-	"			SOUBOR - jmeno souboru se vstupnimi daty\n"
-	"			N - volitelny argument definujici cilovy pocet shluk\n";
+	"	proj3 SOUBOR [N]\n"
+	"		SOUBOR - jmeno souboru se vstupnimi daty\n"
+	"		N - volitelny argument definujici cilovy pocet shluk\n";
 
 
 /*****************************************************************
