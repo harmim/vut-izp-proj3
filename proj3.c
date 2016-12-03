@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
-//#include <math.h> // sqrtf
 #include <limits.h>
+//#include <math.h> // sqrtf
 
 /*****************************************************************
  * Ladici makra. Vypnout jejich efekt lze definici makra
@@ -38,7 +38,8 @@
 #define DFLOAT(f) printf(" - " __FILE__ ":%u: " #f " = %g\n", __LINE__, f)
 #endif
 
-#define PRINT_ERR(s, ...) fprintf(stderr, s "\n", __VA_ARGS__)
+#define PRINT_ERR(s) fprintf(stderr, s "\n")
+#define PRINTF_ERR(s, ...) fprintf(stderr, s "\n", __VA_ARGS__)
 
 /*****************************************************************
  * Deklarace potrebnych datovych typu:
@@ -454,7 +455,7 @@ int load_clusters(char *filename, struct cluster_t **arr)
 	// otevreni souboru pro cteni
 	FILE *file = fopen(filename, "r");
 	if (file == NULL) {
-		PRINT_ERR("Nepodarilo se otevrit soubor %s.", filename);
+		PRINTF_ERR("Nepodarilo se otevrit soubor %s.", filename);
 		return -1;
 	}
 
@@ -462,7 +463,7 @@ int load_clusters(char *filename, struct cluster_t **arr)
 	int max_length_of_line = number_of_digits_in_int(INT_MAX) + 11;
 	char *line = malloc(max_length_of_line * sizeof(char));
 	if (line == NULL) {
-		PRINT_ERR("Chyba alokace pameti.", false);
+		PRINT_ERR("Chyba alokace pameti.");
 		fclose(file);
 		return -1;
 	}
@@ -474,7 +475,7 @@ int load_clusters(char *filename, struct cluster_t **arr)
 		if (line_number == 1) {
 			// prvni radek -- nacteni poctu objektu v souboru
 			if (sscanf(line, "count=%i", &number_of_loaded_cluesters) != 1) {
-				PRINT_ERR("Chybny format souboru na radku %i.", line_number);
+				PRINTF_ERR("Chybny format souboru na radku %i.", line_number);
 				free(line);
 				fclose(file);
 				return -1;
@@ -490,7 +491,7 @@ int load_clusters(char *filename, struct cluster_t **arr)
 
 			init_clusters(arr, number_of_loaded_cluesters);
 			if (*arr == NULL) {
-				PRINT_ERR("Chyba alokace pameti.", false);
+				PRINT_ERR("Chyba alokace pameti.");
 				free(line);
 				fclose(file);
 				return -1;
@@ -512,7 +513,7 @@ int load_clusters(char *filename, struct cluster_t **arr)
 			|| y > 1000
 			|| find_obj_by_id_in_array(*arr, number_of_loaded_cluesters, obj_id)
 		) {
-			PRINT_ERR("Chybny format souboru na radku %i.", line_number);
+			PRINTF_ERR("Chybny format souboru na radku %i.", line_number);
 			free(line);
 			fclose(file);
 			return -1;
