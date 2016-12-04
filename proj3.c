@@ -343,12 +343,13 @@ int remove_cluster(struct cluster_t *carr, int narr, int idx)
 	assert(narr > 0);
 	assert(idx >= 0);
 
+	int new_arr = narr - 1;
 	clear_cluster(&carr[idx]);
-	for (int i = idx; i < narr; i++) {
+	for (int i = idx; i < new_arr; i++) {
 		carr[i] = carr[i + 1];
 	}
 
-	return narr - 1;
+	return new_arr;
 }
 
 
