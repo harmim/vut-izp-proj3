@@ -497,10 +497,11 @@ int load_clusters(char *filename, struct cluster_t **arr)
 	// prochazeni souboru po radcich
 	int line_number = 0, number_of_loaded_obects = 0;
 	struct obj_t obj;
+	char endchar;
 	while (fgets(line, max_length_of_line, file) && ++line_number) {
 		if (line_number == 1) {
 			// prvni radek -- nacteni poctu objektu v souboru
-			if (sscanf(line, "count=%i", &number_of_loaded_obects) != 1) {
+			if (sscanf(line, "count=%d%[^\n]", &number_of_loaded_obects, &endchar) != 1) {
 				PRINTF_ERR("Chybny format souboru na radku %i.", line_number);
 				free(line);
 				fclose(file);
@@ -531,7 +532,7 @@ int load_clusters(char *filename, struct cluster_t **arr)
 
 		// nacteni objektu, validace souradnic, kontrola unikatnosti ID v souboru
 		if (
-			sscanf(line, "%d %f %f", &obj.id, &obj.x, &obj.y) != 3
+			sscanf(line, "%d %f %f%[^\n]", &obj.id, &obj.x, &obj.y, &endchar) != 3
 			|| obj.x < 0
 			|| obj.x > 1000
 			|| obj.y < 0
