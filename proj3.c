@@ -32,7 +32,7 @@
 // vypise formatovany ladici vystup - pouziti podobne jako printf
 #define DFMT(s, ...) printf(" - " __FILE__ ":%u: " s "\n", __LINE__, __VA_ARGS__)
 
-// vypise ladici informaci o promenne typy int - pouziti DINT(identifikator_promenne)
+// vypise ladici informaci o promenne typu int - pouziti DINT(identifikator_promenne)
 #define DINT(i) printf(" - " __FILE__ ":%u: " #i " = %d\n", __LINE__, i)
 
 // vypise ladici informaci o promenne typu float - pouziti dfloat(identifikator_promenne)
@@ -73,15 +73,13 @@ struct cluster_t {
 const char USAGE_STRING[] =
 	"	proj3 SOUBOR [N]\n"
 	"		SOUBOR - jmeno souboru se vstupnimi daty\n"
-	"		N - volitelny argument definujici cilovy pocet shluk\n";
-
+	"		N - volitelny argument definujici cilovy pocet shluk";
 
 /// doporucena hodnota pro realokaci shluku
 const int CLUSTER_CHUNK = 10;
 
-
 /// vychozi cilovy pocet shluku
-const int DEFAULT_REQUIRED_NUMBER_OF_CLUSTERS = 1;
+const int DEFAULT_REQUIRED_CLUSTERS_COUNT = 1;
 
 
 /*****************************************************************
@@ -99,7 +97,7 @@ void sort_cluster(struct cluster_t *c);
  * Pocita pocet cislic v cisle 'n'.
  *
  * @param n cele cislo
- * @return pocet pocet cislic v cisle 'n'
+ * @return pocet cislic v cisle 'n'
  */
 int number_of_digits_in_int(int n)
 {
@@ -129,11 +127,13 @@ void init_cluster(struct cluster_t *c, int cap)
 
 	c->size = 0;
 	if (cap > 0) {
+		// alokace pameti pro pole objektu
 		if ((c->obj = malloc(cap * sizeof(struct obj_t)))) {
 			c->capacity = cap;
 			return;
 		}
 	}
+	// pokud se alokace nezdari nebo bude kapacita 0
 	c->capacity = 0;
 	c->obj = NULL;
 }
@@ -148,7 +148,9 @@ void clear_cluster(struct cluster_t *c)
 {
 	assert(c);
 
+	// uvolneni pameti pole objektu
 	free(c->obj);
+	// inicializace na prazdny shluk
 	init_cluster(c, 0);
 }
 
@@ -192,12 +194,14 @@ void append_cluster(struct cluster_t *c, struct obj_t obj)
 {
 	assert(c);
 
+	// rozsireni kapacity shluku
 	if (c->capacity <= c->size) {
 		if ( ! resize_cluster(c, c->capacity + CLUSTER_CHUNK)) {
 			return;
 		}
 	}
 
+	// pridani objektu na posledni pozici a zvyseni poctu prvku ve shluku
 	c->obj[c->size++] = obj;
 }
 
@@ -214,10 +218,12 @@ void merge_clusters(struct cluster_t *c1, struct cluster_t *c2)
 	assert(c1);
 	assert(c2);
 
+	// pridani objektu shluku 'c2' do shluku 'c1'
 	for (int i = 0; i < c2->size; i++) {
 		append_cluster(c1, c2->obj[i]);
 	}
 
+	// serazeni objektu ve shluku
 	sort_cluster(c1);
 }
 
@@ -253,17 +259,18 @@ void sort_cluster(struct cluster_t *c)
 /**
  * Hleda objekt podle jeho ID ve shluku.
  *
- * @param cluster shluk, v nemz se vyhladava objekt
+ * @param c shluk, v nemz se vyhladava objekt
  * @param id ID hledaneho objektu
  * @return ukazatel na nalezeny objekt, pokud nebyl nalezeny, vraci NULL
  */
-struct obj_t *find_obj_by_id_in_cluster(struct cluster_t *cluster, int id)
+struct obj_t *find_obj_by_id_in_cluster(const struct cluster_t *c, const int id)
 {
-	assert(cluster);
+	assert(c);
 
-	for (int i = 0; i < cluster->size; i++) {
-		if (cluster->obj[i].id == id) {
-			return &cluster->obj[i];
+	// prochazeni objektu a porovnavani jejich ID
+	for (int i = 0; i < c->size; i++) {
+		if (c->obj[i].id == id) {
+			return &c->obj[i];
 		}
 	}
 
@@ -291,22 +298,21 @@ void print_cluster(struct cluster_t *c)
 /**
  * Inicializace pole shluku, alokuje pamet pro 'size' shluku.
  *
- * @param clusters ukazatel na pole shluku
- * @param size velikost pole shluku
+ * @param carr ukazatel na pole shluku
+ * @param narr velikost pole shluku
  */
-void init_clusters(struct cluster_t **clusters, int size)
+void init_clusters(struct cluster_t **carr, const int narr)
 {
-	assert(clusters);
-	assert(size >= 0);
+	assert(carr);
+	assert(narr >= 0);
 
-	if ( ! (*clusters = malloc(size * sizeof(struct cluster_t)))) {
+	// alokace pameti pro pole shluku
+	if ( ! (*carr = malloc(narr * sizeof(struct cluster_t)))) {
 		return;
 	}
-
-	struct cluster_t cluster;
-	for (int i = 0; i < size; i++) {
-		init_cluster(&cluster, 0);
-		(*clusters)[i] = cluster;
+	// inicializace objektu pole
+	for (int i = 0; i < narr; i++) {
+		init_cluster(&(*carr)[i], 0);
 	}
 }
 
@@ -314,18 +320,20 @@ void init_clusters(struct cluster_t **clusters, int size)
 /**
  * Odstraneni pole shluku.
  *
- * @param clusters pole shluku pro odstraneni
- * @param size velikost pole shluku
+ * @param carr pole shluku pro odstraneni
+ * @param narr velikost pole shluku
  */
-void clear_clusters(struct cluster_t *clusters, int size)
+void clear_clusters(struct cluster_t *carr, const int narr)
 {
-	assert(clusters);
-	assert(size >= 0);
+	assert(carr);
+	assert(narr >= 0);
 
-	for (int i = 0; i < size; i++) {
-		clear_cluster(&clusters[i]);
+	// uvolneni pameti objektu pole
+	for (int i = 0; i < narr; i++) {
+		clear_cluster(&carr[i]);
 	}
-	free(clusters);
+	// uvolneni pameti pole shluku
+	free(carr);
 }
 
 
@@ -343,13 +351,16 @@ int remove_cluster(struct cluster_t *carr, int narr, int idx)
 	assert(narr > 0);
 	assert(idx >= 0);
 
-	int new_arr = narr - 1;
+	// nova velikost bude o 1 mensi
+	int new_narr = narr - 1;
+	// uvolneni pameti pro shluk na indexu idx
 	clear_cluster(&carr[idx]);
-	for (int i = idx; i < new_arr; i++) {
+	// posunuti shluku v poli od indexu idx smerem doleva
+	for (int i = idx; i < new_narr; i++) {
 		carr[i] = carr[i + 1];
 	}
 
-	return new_arr;
+	return new_narr;
 }
 
 
@@ -366,6 +377,7 @@ float obj_distance(struct obj_t *o1, struct obj_t *o2)
 	assert(o1);
 	assert(o2);
 
+	// vypocet Euklidovske vzdalenosti mezi objkety 'o1' a 'o2'
 	return sqrtf(powf(o1->x - o2->x, 2.0) + powf(o1->y - o2->y, 2.0));
 }
 
@@ -384,14 +396,13 @@ float cluster_distance(struct cluster_t *c1, struct cluster_t *c2)
 	assert(c2);
 	assert(c2->size > 0);
 
-	int i = 0, j = 0;
-	float max_distance = obj_distance(&c1->obj[i], &c2->obj[j]), distance;
-	for (; i < c1->size; i++) {
-		for (int j = i + 1; j < c2->size; j++) {
-			if (i == 0 && j == 1) {
-				continue;
-			}
+	float max_distance = 0.0, distance;
+	// pocitani vzdalenosti vsech objektu ze shluku 'c1' se vsemi objkty ze shluku 'c2'
+	for (int i = 0; i < c1->size; i++) {
+		for (int j = i; j < c2->size; j++) {
+			// vypocet vzdalenosti
 			distance = obj_distance(&c1->obj[i], &c2->obj[j]);
+			// hledani maximalni vzdalenosti
 			if (distance > max_distance) {
 				max_distance = distance;
 			}
@@ -415,21 +426,23 @@ void find_neighbours(struct cluster_t *carr, int narr, int *c1, int *c2)
 {
 	assert(carr);
 	assert(narr > 0);
+	assert(c1);
+	assert(c2);
 
+	// v poli je pouze jeden shluk
 	if (narr == 1) {
 		*c1 = *c2 = 0;
 		return;
 	}
 
-	int i = *c1 = 0, j = *c2 = 1;
-	float min_distance = cluster_distance(&carr[i], &carr[j]), distance;
-	for (; i < narr; i++) {
-		for (j = i + 1; j < narr; j++) {
-			if (i == 0 && j == 1) {
-				continue;
-			}
+	float min_distance = -1, distance;
+	// pocitani vzdalenosti mezi vsemi shluky navzajem
+	for (int i = 0; i < narr; i++) {
+		for (int j = i + 1; j < narr; j++) {
+			// vypocet vzdalenosti
 			distance = cluster_distance(&carr[i], &carr[j]);
-			if (distance < min_distance) {
+			// hledani minimalni vzdalenosti (pokud je min_distance == -1, znamena to, ze jeste neni nastaveno)
+			if (min_distance == -1 || distance < min_distance) {
 				min_distance = distance;
 				*c1 = i;
 				*c2 = j;
@@ -447,12 +460,13 @@ void find_neighbours(struct cluster_t *carr, int narr, int *c1, int *c2)
  * @param id ID hledaneho objektu
  * @return nalezeny objekt, pokud nebyl nalezeny, vraci NULL
  */
-struct obj_t *find_obj_by_id_in_array(struct cluster_t *clusters, int size, int id)
+struct obj_t *find_obj_by_id_in_array(const struct cluster_t *clusters, const int size, const int id)
 {
 	assert(clusters);
 	assert(size >= 0);
 
 	struct obj_t *obj = NULL;
+	// prochazeni pole shluku a vyhledavani objektu podle ID
 	for (int i = 0; i < size; i++) {
 		if ((obj = find_obj_by_id_in_cluster(&clusters[i], id))) {
 			break;
@@ -482,90 +496,103 @@ int load_clusters(char *filename, struct cluster_t **arr)
 	// otevreni souboru pro cteni
 	FILE *file = fopen(filename, "r");
 	if ( ! file) {
-		PRINTF_ERR("Nepodarilo se otevrit soubor %s.", filename);
+		PRINTF_ERR("Nepodarilo se otevrit soubor %s pro cteni.", filename);
 		return -1;
 	}
 
-	// alokace pameti pro nacteni radku
-	int max_length_of_line = number_of_digits_in_int(INT_MAX) + 11;
-	char *line = malloc(max_length_of_line * sizeof(char));
-	if ( ! line) {
-		PRINT_ERR("Chyba alokace pameti.");
-		fclose(file);
-		return -1;
-	}
+	// spocitani maximalni velikosti radku
+	int max_line_len = number_of_digits_in_int(INT_MAX) + 11;
+	char line[max_line_len];
 
-	// prochazeni souboru po radcich
-	int line_number = 0, number_of_loaded_obects = 0;
+	int line_number = 0, loaded_obects_count = 0, cluster_size;
 	struct obj_t obj;
+	struct cluster_t *cluster;
 	char endchar;
-	while (fgets(line, max_length_of_line, file) && ++line_number) {
+	// prochazeni souboru po radcich
+	while (fgets(line, max_line_len, file) && ++line_number) {
+		/// prvni radek -> nacteni poctu objektu v souboru
+
 		if (line_number == 1) {
-			// prvni radek -- nacteni poctu objektu v souboru
-			if (sscanf(line, "count=%d%[^\n]", &number_of_loaded_obects, &endchar) != 1) {
-				PRINTF_ERR("Chybny format souboru na radku %i.", line_number);
-				free(line);
+			// za hodnotou poctu objektu uz nesmi nasledovat zadny znak krome \n a \0
+			if (sscanf(line, "count=%d%[^\n]", &loaded_obects_count, &endchar) != 1) {
+				PRINTF_ERR("Chybny format souboru na radku %d.", line_number);
+				fclose(file);
+				return -1;
+			}
+			// validace hodnoty poctu objektu
+			if (loaded_obects_count <= 0) {
+				PRINTF_ERR("Hodnota poctu objektu 'count=%d' musi byt vetsi nez 0.", loaded_obects_count);
 				fclose(file);
 				return -1;
 			}
 
-			if (number_of_loaded_obects <= 0) {
-				PRINTF_ERR("Hodnota poctu objektu 'count=%i' musi byt vetsi nez 0.", number_of_loaded_obects);
-				free(line);
-				fclose(file);
-				return -1;
-			}
-
-			init_clusters(arr, number_of_loaded_obects);
+			// inicializace pole shluku
+			init_clusters(arr, loaded_obects_count);
 			if ( ! *arr) {
 				PRINT_ERR("Chyba alokace pameti.");
-				free(line);
 				fclose(file);
 				return -1;
 			}
+
 			continue;
 		}
 
-		// pocet radku (-1, protoze na prvnim radku neni objekt) je vetsi, nez je pocet uvedenych objektu
-		if (line_number - 1 > number_of_loaded_obects) {
+		/// nacitani jednotlivych objektu
+
+		// pokud je pocet objektu vetsi nez uvedeny pocet, tak se ostatni radky s objekty ignoruji
+		if (line_number - 1 > loaded_obects_count) {
 			break;
 		}
 
 		// nacteni objektu, validace souradnic, kontrola unikatnosti ID v souboru
+		// za hodnotou druhe souradnice uz nesmi nasledovat zadny znak krome \n a \0
 		if (
 			sscanf(line, "%d %f %f%[^\n]", &obj.id, &obj.x, &obj.y, &endchar) != 3
 			|| obj.x < 0
 			|| obj.x > 1000
 			|| obj.y < 0
 			|| obj.y > 1000
-			|| find_obj_by_id_in_array(*arr, number_of_loaded_obects, obj.id)
+			|| find_obj_by_id_in_array(*arr, loaded_obects_count, obj.id)
 		) {
-			PRINTF_ERR("Chybny format souboru na radku %i.", line_number);
-			clear_clusters(*arr, number_of_loaded_obects);
+			PRINTF_ERR("Chybny format souboru na radku %d.", line_number);
+			// uvolenni pameti
+			clear_clusters(*arr, loaded_obects_count);
 			*arr = NULL;
-			free(line);
 			fclose(file);
 			return -1;
 		}
 
-		append_cluster(&(*arr)[line_number - 2], obj);
+		// pridani objektu od patricneho shluku (shluk s indexem 'line_number - 2', protoze
+		// objekty zacinaji az od prvniho radku a indexy se cisluji od 0)
+		cluster = &(*arr)[line_number - 2];
+		cluster_size = cluster->size;
+		append_cluster(cluster, obj);
+		if (cluster_size == cluster->size) {
+			PRINT_ERR("Chyba alokace pameti.");
+			// uvolenni pameti
+			clear_clusters(*arr, loaded_obects_count);
+			*arr = NULL;
+			fclose(file);
+			return -1;
+		}
 	}
 
-	free(line);
 	fclose(file);
 
-	if (line_number - 1 < number_of_loaded_obects) {
+	// pocet objektu v souboru nesmi byt mensi nez uvedeny pocet
+	if (line_number - 1 < loaded_obects_count) {
 		PRINTF_ERR(
-			"Pocet objektu v souboru '%i' musi byt vetsi nebo roven hodnote 'count=%i'",
+			"Pocet objektu v souboru '%d' musi byt vetsi nebo roven hodnote 'count=%d'",
 			line_number - 1,
-			number_of_loaded_obects
+			loaded_obects_count
 		);
-		clear_clusters(*arr, number_of_loaded_obects);
+		// uvolenni pameti
+		clear_clusters(*arr, loaded_obects_count);
 		*arr = NULL;
 		return -1;
 	}
 
-	return number_of_loaded_obects;
+	return loaded_obects_count;
 }
 
 
@@ -593,24 +620,30 @@ void print_clusters(struct cluster_t *carr, int narr)
  * @param required_size pozadovana velikost pole shluku
  * @return nova velikost pole shluku
  */
-int get_required_size_of_clusters(
-		struct cluster_t *clusters,
-		int size,
-		int required_size
-) {
+int get_required_size_of_clusters(struct cluster_t *clusters, int size, const int required_size) {
 	assert(clusters);
 	assert(size >= 0);
 	assert(required_size > 0);
 
+	// validace poctu shluku vuci pozadovane hodnote
 	if (required_size > size) {
 		PRINTF_ERR("Zadany pocet pozadovanych shluku '%d' je vetsi nez celkovy pocet objektu '%d'.", required_size, size);
 		return -1;
 	}
 
-	int c1_idx, c2_idx;
+	int c1_idx, c2_idx, previous_c1_size;
+	// dokud neni pocet shluku roven pozadovanemu poctu, sousedni shluky se spojuji
 	while (size > required_size) {
+		// hledani sousednich shluku
 		find_neighbours(clusters, size, &c1_idx, &c2_idx);
+		// spojovani sousednich shluku do shluku na indexu 'c1_idx'
+		previous_c1_size = clusters[c1_idx].size;
 		merge_clusters(&clusters[c1_idx], &clusters[c2_idx]);
+		if (clusters[c2_idx].size > 0 && clusters[c1_idx].size != previous_c1_size + clusters[c2_idx].size) {
+			PRINT_ERR("Chyba alokace pameti.");
+			return -1;
+		}
+		// odstraneni shluku v poli z indexu 'c2_idx'
 		size = remove_cluster(clusters, size, c2_idx);
 	}
 
@@ -633,13 +666,15 @@ bool process_input_args(int argc, char *argv[], bool *help)
 	// 1 povinny argument a 1 volitelny
 	if (argc > 1 && argc <= 3) {
 		struct cluster_t *clusters;
-		int size, required_size = DEFAULT_REQUIRED_NUMBER_OF_CLUSTERS;
+		int size, required_size = DEFAULT_REQUIRED_CLUSTERS_COUNT;
 
+		// nacteni pozadovaneho poctu shluku z hodnoty argumentu
 		if (argc == 3) {
 			char *endptr = NULL;
-			required_size = strtol(argv[2], &endptr, 10);
+			required_size = (int) strtol(argv[2], &endptr, 10);
+			// validace hodnoty argumentu
 			if (*endptr) {
-				PRINTF_ERR("Hodnota argumentu N musi byt cislo, predano %s.", endptr);
+				PRINTF_ERR("Hodnota argumentu N musi byt cislo, ale hodnota obsahuje %s.", endptr);
 				return false;
 			} else if (required_size <= 0) {
 				PRINTF_ERR("Hodnota argumentu N musi byt cislo vetsi nez 0, predano %d", required_size);
@@ -652,15 +687,14 @@ bool process_input_args(int argc, char *argv[], bool *help)
 			return false;
 		}
 
-		if (required_size > size) {
-			PRINTF_ERR("Zadany pocet pozadovanych shluku '%d' je vetsi nez celkovy pocet objektu '%d'.", required_size, size);
+		int new_size;
+		// priprava shluku pro vypis (ziskani pozadovaneho pocetu shluku)
+		if ((new_size = get_required_size_of_clusters(clusters, size, required_size)) == -1) {
 			// uvolenni pameti
 			clear_clusters(clusters, size);
 			return false;
 		}
-
-		// priprava shluku pro vypis (pozadovany pocet shluku)
-		size = get_required_size_of_clusters(clusters, size, required_size);
+		size = new_size;
 
 		// vypis shluku
 		print_clusters(clusters, size);
@@ -683,6 +717,7 @@ bool process_input_args(int argc, char *argv[], bool *help)
  */
 int main(int argc, char *argv[])
 {
+	// zpracovani argumentu
 	bool help = false, result = process_input_args(argc, argv, &help);
 	if (help) {
 		// bude vypsana napoveda
