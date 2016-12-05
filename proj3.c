@@ -501,7 +501,7 @@ int load_clusters(char *filename, struct cluster_t **arr)
 	}
 
 	// spocitani maximalni velikosti radku
-	int max_line_len = number_of_digits_in_int(INT_MAX) + 11;
+	int max_line_len = number_of_digits_in_int(INT_MAX) + 12;
 	char line[max_line_len];
 
 	int line_number = 0, loaded_obects_count = 0, cluster_size;
