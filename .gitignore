@@ -27,6 +27,7 @@
 *.i*86
 *.x86_64
 *.hex
+/proj3
 
 # Debug files
 *.dSYM/
@@ -36,4 +37,10 @@
 /.idea
 /cmake-build-debug/
 
-/proj3
+# Doxygen
+/doxygen/html/
+
+# Tests
+/tests/*-my
+/tests/*-error
+/tests/tmp*

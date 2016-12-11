@@ -1,0 +1,4 @@
+napoveda:
+	proj3 SOUBOR [N]
+		SOUBOR - jmeno souboru se vstupnimi daty
+		N - volitelny argument definujici cilovy pocet shluk
