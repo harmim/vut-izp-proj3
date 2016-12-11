@@ -100,10 +100,10 @@ void sort_cluster(struct cluster_t *c);
  */
 
 /**
- * Pocita pocet cislic v cisle 'n'.
+ * Pocita pocet cislic v cisle `n`.
  *
  * @param n cele cislo
- * @return pocet cislic v cisle 'n'
+ * @return pocet cislic v cisle `n`
  */
 int number_of_digits_in_int(int n)
 {
@@ -120,11 +120,11 @@ int number_of_digits_in_int(int n)
 /////////////// Prace se shluky ///////////////
 
 /**
- * Inicializace shluku 'c', alokuje pamet pro 'cap' objektu.
+ * Inicializace shluku `c`, alokuje pamet pro `cap` objektu.
  * Ukazatel NULL u pole objektu znamena kapacitu 0.
  *
  * @param c shluk pro inicializaci
- * @param cap kapacita objektu
+ * @param cap pozadovana kapacita shluku
  */
 void init_cluster(struct cluster_t *c, int cap)
 {
@@ -146,7 +146,7 @@ void init_cluster(struct cluster_t *c, int cap)
 
 
 /**
- * Odstraneni vsech objektu shluku 'c' a inicializace na prazdny shluk.
+ * Odstraneni vsech objektu shluku `c` a inicializace na prazdny shluk.
  *
  * @param c shluk pro odstraneni
  */
@@ -162,7 +162,7 @@ void clear_cluster(struct cluster_t *c)
 
 
 /**
- * Zmena kapacity shluku 'c'.
+ * Zmena kapacity shluku `c`.
  *
  * @param c shluk pro zmenu kapacity
  * @param new_cap nova kapacita
@@ -190,7 +190,7 @@ struct cluster_t *resize_cluster(struct cluster_t *c, int new_cap)
 
 
 /**
- * Prida objekt 'obj' na konec shluku 'c',
+ * Prida objekt `obj` na konec shluku `c`,
  * pokud se do shluku objekt nevejde, rozsiri shluk.
  *
  * @param c shluk pro pridani objektu
@@ -216,11 +216,11 @@ void append_cluster(struct cluster_t *c, struct obj_t obj)
 
 
 /**
- * Do shluku 'c1' prida objekty shluku 'c2'. Shluk 'c1' bude v pripade nutnosti rozsiren.
- * Objekty ve shluku 'c1' budou serazny vzestupne podle ID. Shluk 'c2' bude nezmenen.
+ * Do shluku `c1` prida objekty shluku `c2`. Shluk `c1` bude v pripade nutnosti rozsiren.
+ * Objekty ve shluku `c1` budou serazny vzestupne podle ID. Shluk `c2` bude nezmenen.
  *
- * @param c1 shluk, do ktereho budou pridany objekty shluku 'c2'
- * @param c2 shluk, jehoz objekty budou pridany do shluku 'c1'
+ * @param c1 shluk, do ktereho budou pridany objekty shluku `c2`
+ * @param c2 shluk, jehoz objekty budou pridany do shluku `c1`
  */
 void merge_clusters(struct cluster_t *c1, struct cluster_t *c2)
 {
@@ -230,7 +230,7 @@ void merge_clusters(struct cluster_t *c1, struct cluster_t *c2)
 	if (c2->size != 0) assert(c2->obj);
 
 	int previous_c1_size = c1->size;
-	// pridani objektu shluku 'c2' do shluku 'c1'
+	// pridani objektu shluku `c2` do shluku `c1`
 	for (int i = 0; i < c2->size; i++) {
 		append_cluster(c1, c2->obj[i]);
 	}
@@ -312,7 +312,7 @@ void print_cluster(struct cluster_t *c)
 /////////////// Prace s polem shluku ///////////////
 
 /**
- * Inicializace pole shluku, alokuje pamet pro 'narr' shluku.
+ * Inicializace pole shluku, alokuje pamet pro `narr` shluku.
  *
  * @param carr pole shluku
  * @param narr velikost pole shluku
@@ -354,7 +354,7 @@ void clear_clusters(struct cluster_t *carr, const int narr)
 
 
 /**
- * Odstrani shluk z pole shluku 'carr'.
+ * Odstrani shluk z pole shluku `carr`.
  *
  * @param carr pole shluku
  * @param narr pocet shluku v poli
@@ -387,14 +387,14 @@ int remove_cluster(struct cluster_t *carr, int narr, int idx)
  * @see https://en.wikipedia.org/wiki/Euclidean_distance
  * @param o1 objekt 1
  * @param o2 objekt 2
- * @return Euklidovska vzdalenost mezi objekty 'o1' a 'o2'
+ * @return Euklidovska vzdalenost mezi objekty `o1` a `o2`
  */
 float obj_distance(struct obj_t *o1, struct obj_t *o2)
 {
 	assert(o1);
 	assert(o2);
 
-	// vypocet Euklidovske vzdalenosti mezi objkety 'o1' a 'o2'
+	// vypocet Euklidovske vzdalenosti mezi objkety `o1` a `o2`
 	return sqrtf(powf(o1->x - o2->x, 2.0) + powf(o1->y - o2->y, 2.0));
 }
 
@@ -404,7 +404,7 @@ float obj_distance(struct obj_t *o1, struct obj_t *o2)
  *
  * @param c1 shluk 1
  * @param c2 shluk 2
- * @return vzdalenost shluku 'c1' a 'c2'
+ * @return vzdalenost shluku `c1` a `c2`
  */
 float cluster_distance(struct cluster_t *c1, struct cluster_t *c2)
 {
@@ -416,7 +416,7 @@ float cluster_distance(struct cluster_t *c1, struct cluster_t *c2)
 	assert(c2->obj);
 
 	float max_distance = 0.0, distance;
-	// pocitani vzdalenosti vsech objektu ze shluku 'c1' se vsemi objkty ze shluku 'c2'
+	// pocitani vzdalenosti vsech objektu ze shluku `c1` se vsemi objkty ze shluku `c2`
 	for (int i = 0; i < c1->size; i++) {
 		for (int j = i; j < c2->size; j++) {
 			// vypocet vzdalenosti
@@ -434,7 +434,7 @@ float cluster_distance(struct cluster_t *c1, struct cluster_t *c2)
 
 /**
  * Najde dva nejblizsi shluky.
- * Indexy nalezenych shulu v poli 'carr' uklada do c1 a c2.
+ * Indexy nalezenych shulu v poli `carr` uklada do `c1` a `c2`.
  *
  * @param carr pole shluku
  * @param narr pocet shluku v poli
@@ -497,10 +497,10 @@ struct obj_t *find_obj_by_id_in_array(const struct cluster_t *carr, const int na
 
 
 /**
- * Ze souboru 'filename' nacte objekty. Pro kazdy objekt vytvori shluk a ulozi
+ * Ze souboru `filename` nacte objekty. Pro kazdy objekt vytvori shluk a ulozi
  * jej do pole shluku. Alokuje prostor pro pole vsech shluku a ukazatel na prvni
  * polozku pole (ukalazatel na prvni shluk v alokovanem poli) ulozi do pameti,
- * kam se odkazuje parametr 'arr'.
+ * kam se odkazuje parametr `arr`.
  *
  * @param filename nazev souboru pro nacteni objektu
  * @param arr ukazatel na pole shluku nactenych ze souboru (v pripade chyby bude ukazovat na NULL)
@@ -580,12 +580,12 @@ int load_clusters(char *filename, struct cluster_t **arr)
 			return -1;
 		}
 
-		// prirazeni nactenych hodnot do struktury 'obj_t'
+		// prirazeni nactenych hodnot do struktury `obj_t`
 		obj.x = obj_x;
 		obj.y = obj_y;
 		obj.id = obj_id;
 
-		// pridani objektu do patricneho shluku (shluk s indexem 'line_number - 2', protoze
+		// pridani objektu do patricneho shluku (shluk s indexem `line_number - 2`, protoze
 		// objekty zacinaji az od druheho radku a indexy se cisluji od 0)
 		cluster = &(*arr)[line_number - 2];
 		append_cluster(cluster, obj);
@@ -659,14 +659,14 @@ int get_required_size_of_clusters(struct cluster_t *clusters, int size, const in
 	while (size > required_size) {
 		// hledani sousednich shluku
 		find_neighbours(clusters, size, &c1_idx, &c2_idx);
-		// spojovani sousednich shluku do shluku na indexu 'c1_idx'
+		// spojovani sousednich shluku do shluku na indexu `c1_idx`
 		previous_c1_size = clusters[c1_idx].size;
 		merge_clusters(&clusters[c1_idx], &clusters[c2_idx]);
 		if (clusters[c2_idx].size > 0 && clusters[c1_idx].size != previous_c1_size + clusters[c2_idx].size) {
 			PRINT_ERR("Chyba alokace pameti.");
 			return -1;
 		}
-		// odstraneni shluku v poli z indexu 'c2_idx'
+		// odstraneni shluku v poli z indexu `c2_idx`
 		size = remove_cluster(clusters, size, c2_idx);
 	}
 

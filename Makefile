@@ -14,5 +14,5 @@ tests: tests/test.sh
 	cd tests && ./test.sh -m
 
 clean: tests/test.sh
-	rm -f $(PROJ)
+	rm -rf $(PROJ) *.dSYM/ doxygen/html/
 	cd tests && ./test.sh -c
